@@ -39,6 +39,7 @@ func main() {
 	go ast_node_list()
 	go ite_node_list()
 	go checkIPFormat()
+	go initWebSocket()
 	go func(){
 		log.Fatal(http.ListenAndServe(":8080",router))
 		/*s := &http.Server{
@@ -49,7 +50,6 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 		}
 		log.Fatal(s.ListenAndServe())*/
-
 	}()
 
 	startUDPServer()
