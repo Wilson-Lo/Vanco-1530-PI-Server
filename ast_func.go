@@ -107,8 +107,6 @@ var ast_osd_map[8] ast_osd_info
 var ast_busy = false 
 
 
-
-
 func ast_initial_preset(){
 
 	ast_loadPreset("1")
@@ -1188,27 +1186,31 @@ func ast_osd_apply(mac,index string) (string) {
 
 	}else{  //pic
 
+
+      fmt.Println("11111111111 =  "+ "e e_osd_on_str::0::240::"+ast_osd_map[i-1].OSD_alpha+"::"+ast_osd_map[i-1].OSD_mask+"::"+"0"+"::"+""+"::"+ast_osd_map[i-1].OSD_fontSize+"::"+ast_osd_map[i-1].OSD_fontColor )
+
+
 		_,err = astSendCMD(conn,"e e_osd_on_str::0::240::"+ast_osd_map[i-1].OSD_alpha+"::"+ast_osd_map[i-1].OSD_mask+"::"+"0"+"::"+""+"::"+ast_osd_map[i-1].OSD_fontSize+"::"+ast_osd_map[i-1].OSD_fontColor,bs)
 		if err != nil { 
 			conn.Close()
 		    fmt.Println("Set image OSD error 1 ~~~~~~~~~~~~~~~~~~~~~")
 			return "ERR_FMT"
 		}
-
+        fmt.Println("22222 =  "+ "tftp -g -r /osd/"+ ast_osd_map[i-1].OSD_imgName + " " + pi4Addr)
 		_,err = astSendCMD(conn,"tftp -g -r /osd/"+ ast_osd_map[i-1].OSD_imgName + " " + pi4Addr ,bs)
         	if err != nil {
         	conn.Close()
         	fmt.Println("Set image OSD error 2 ~~~~~~~~~~~~~~~~~~~~~")
         	return "ERR_FMT"
         }
-
+        fmt.Println("333333 =  "+ "mv "+ ast_osd_map[i-1].OSD_imgName + " share")
         _,err = astSendCMD(conn,"mv "+ ast_osd_map[i-1].OSD_imgName + " share",bs)
            if err != nil {
             conn.Close()
             fmt.Println("Set image OSD error 3 ~~~~~~~~~~~~~~~~~~~~~" , err)
             return "ERR_FMT"
         }
-
+         fmt.Println("4444444 =  "+ "osd_pic_on.sh "+ast_osd_map[i-1].OSD_imgName+" "+ast_osd_map[i-1].OSD_offtime+" "+ast_osd_map[i-1].OSD_mask+" "+ast_osd_map[i-1].OSD_alpha)
 		_,err = astSendCMD(conn,"osd_pic_on.sh "+ast_osd_map[i-1].OSD_imgName+" "+ast_osd_map[i-1].OSD_offtime+" "+ast_osd_map[i-1].OSD_mask+" "+ast_osd_map[i-1].OSD_alpha,bs)
 		if err != nil {
 			conn.Close()

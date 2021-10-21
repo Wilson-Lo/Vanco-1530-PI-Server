@@ -50,28 +50,8 @@ func MacaddressToByte6(mac string) []byte {//not include ':'
 }
 
 func NewRouter() *mux.Router {    
-	r := mux.NewRouter()	
+	r := mux.NewRouter()
 
-	//ITE
-	/*r.HandleFunc("/api/ite/name",ite_api_setDeviceName).Methods("POST")
-	r.HandleFunc("/api/ite/mac",ite_api_setMacAddress).Methods("POST")
-	r.HandleFunc("/api/ite/group_id",ite_api_setGroupID).Methods("POST")
-	r.HandleFunc("/api/ite/ip_static",ite_api_setStaticIP).Methods("POST")
-	r.HandleFunc("/api/ite/dhcp",ite_api_setDhcpMode).Methods("POST")
-	r.HandleFunc("/api/ite/baud_rate",ite_api_setBaudRate).Methods("POST")
-	r.HandleFunc("/api/ite/streaming_mode",ite_api_setStreamingMode).Methods("POST")
-	r.HandleFunc("/api/ite/screen_mode",ite_api_setScreenMode).Methods("POST")
-	r.HandleFunc("/api/ite/osd",ite_api_setOsdMode).Methods("POST")
-	r.HandleFunc("/api/ite/bit_rate",ite_api_setVideoBitRate).Methods("POST")
-	r.HandleFunc("/api/ite/video_out_mode",ite_api_setVideoOutMode).Methods("POST")
-	r.HandleFunc("/api/ite/delay_mode",ite_api_setVideoLowDelayMode).Methods("POST")
-	r.HandleFunc("/api/ite/tx_multicast_mode",ite_api_setMulticastMode).Methods("POST")
-	r.HandleFunc("/api/ite/factory_reset/{mac}",ite_api_factoryReset).Methods("GET")
-	r.HandleFunc("/api/ite/reboot/{mac}",ite_api_Reboot).Methods("GET")
-	r.HandleFunc("/api/ite/downscale",ite_api_setDownScale).Methods("POST")
-	r.HandleFunc("/api/ite/mcu",ite_api_setMcuCommand).Methods("POST")
-	r.HandleFunc("/api/ite/device_info",ite_api_node_info).Methods("GET")*/
-	//
 	r.HandleFunc("/api/video_wall_preset",api_list_vw_Preset).Methods("GET")
 	r.HandleFunc("/api/video_wall_preset",api_modify_vw_Preset).Methods("POST")
 	r.HandleFunc("/api/system_config",sys_get_config).Methods("GET")
@@ -123,8 +103,13 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/api/mjpg", api_mjpg).Methods("GET")
 	r.HandleFunc("/api/post_test/{mac}",http_post_debug).Methods("GET")  //DEBUG
 	//api third party
-	r.HandleFunc("/api",api_thirdPart).Methods("POST")				
+	r.HandleFunc("/api",api_thirdPart).Methods("POST")
+	//test PIP
+	r.HandleFunc("/api/pip", api_pip).Methods("GET")
+
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./www/"))))
+
+
 
 
    get_ite_ip := false 

@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"io/ioutil"
+	"log"
+	"bufio"
+	"time"
 )
 
 type ackStatus int
@@ -787,3 +790,112 @@ func api_thirdPart(w http.ResponseWriter, r *http.Request) {
 	
 } 
 
+func api_pip(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+	w.(http.Flusher).Flush()
+    uptimeTicker := time.NewTicker(200 * time.Millisecond)
+   	conn, err := aliasDialer.Dial("tcp","169.254.4.203:24")
+   	if err != nil {
+   		//return "DAIL_ERR"
+   	}
+   	bs := make([]byte, 1024)
+   	if astLogin(conn,bs) != nil {
+   		conn.Close()
+   		//return "LOGIN_ERR"
+   	}else{
+   	   fmt.Println("log in successful~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+   	}
+
+   for {
+     select {
+     case <-uptimeTicker.C:
+        pip()
+
+        _,err = astSendCMD(conn,"e e_osd_on_str::0::240::31::1::0::::1::0xFF00FF00" ,bs)
+                        	if err != nil {
+                        	conn.Close()
+                        	fmt.Println("Set image OSD error 1 ~~~~~~~~~~~~~~~~~~~~~")
+                        //	return "ERR_FMT"
+         }
+
+        _,err = astSendCMD(conn,"tftp -g -r /osd/test.jpg" + " " + pi4Addr ,bs)
+                	if err != nil {
+                	conn.Close()
+                	fmt.Println("Set image OSD error 2 ~~~~~~~~~~~~~~~~~~~~~")
+                //	return "ERR_FMT"
+        }
+
+         _,err = astSendCMD(conn,"mv test.jpg share",bs)
+                   if err != nil {
+                    conn.Close()
+                    fmt.Println("Set image OSD error 3 ~~~~~~~~~~~~~~~~~~~~~" , err)
+                  //  return "ERR_FMT"
+         }
+
+       _,err = astSendCMD(conn,"osd_pic_on.sh test.jpg n 1 31",bs)
+        	if err != nil {
+        		conn.Close()
+        	//	return "ERR_FMT"
+        }
+      }
+   }
+}
+
+func pip() {
+   fmt.Println("httpGet")
+   var boundary = "--boundarydonotcross"
+   var counterBoundary = 0
+   var counterHeader = 0
+   var data = ""
+   resp, err := http.Get("http://169.254.4.203:8080/?action=stream&w=320&h=240&fps=25&bw=8000&as=20")
+   if err != nil {
+        // handle error
+       fmt.Println("err1")
+   }
+   defer resp.Body.Close()
+   reader := bufio.NewReader(resp.Body)
+   for {
+
+    line, err2 :=  reader.ReadBytes('\n')
+
+	if err2 != nil{
+	   fmt.Println("err2")
+	}
+
+	if(strings.Contains(string(line), boundary)){
+	   counterBoundary++
+	}else{
+	   counterHeader++
+	}
+
+	if(counterBoundary > 1){
+	   createJPG(data,"")
+	  // ast_pip_apply()
+	   break
+	}else{
+	 if(counterHeader > 4){
+	    data = data + string(line)
+	 }
+	}
+   }
+  // fmt.Println(string(body))
+}
+
+func createJPG(data string, fileName string){
+
+    //open a file for writing
+    file, err := os.Create("./www/snapshot/osd/" + fileName + ".jpg")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+	file.Sync()
+	w := bufio.NewWriter(file)
+    defer w.Flush()
+	n4, err := w.WriteString(data)
+	fmt.Printf("wrote %d bytes\n", n4)
+    file.Sync()
+    fmt.Println("Success!")
+}
