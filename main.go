@@ -9,13 +9,17 @@ import (
     "fmt"
     "log"
 	"time"
-   // "net"
+    //"net"
+   //	"encoding/base64"
+   // "crypto/tls"
     "os/exec"
     "net/http"
     "net"
     "strconv"
     "encoding/hex"
     "strings"
+   // "net/mail"
+   // "net/smtp"
 )
 
 var aesKey = []byte("qzy159pkn333rty2")
@@ -88,7 +92,6 @@ func checkIPFormat() {
           }
          count = count + 1;
        }
-
        if(count < 2){
          fmt.Printf("count < 2 ~~~~~~~~~~~~~~~")
          cmd3 := exec.Command("sudo","avahi-autoipd","-k","eth0:0")

@@ -899,3 +899,15 @@ func createJPG(data string, fileName string){
     file.Sync()
     fmt.Println("Success!")
 }
+
+
+func ws_node_list() string {
+    fmt.Println("ws_node_list~~~~~~~~~~~~~~~~~~~")
+	node_slice := make([]Ast_info, 0, len(ast_info_map))
+    for _, tx := range ast_info_map {
+          node_slice = append(node_slice, *tx)
+    }
+    json_node_list ,_:= json.Marshal(node_slice)
+    fmt.Println("ws_node_list", string(json_node_list))
+    return string(json_node_list)
+}

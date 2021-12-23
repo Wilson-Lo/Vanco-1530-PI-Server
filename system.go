@@ -1,7 +1,7 @@
 package main
 import (
-		"fmt"		
-    "time"   
+    "fmt"
+    "time"
 	"net"
     "net/http"
     "strings"
@@ -151,7 +151,7 @@ const (
 )
 
 
-type systemConfig struct {	
+type systemConfig struct {
 	UI string `json:"ui"`
 	Timezone string `json:"tz"`
 	IP_mode string `json:"ip_mode"`
@@ -163,23 +163,23 @@ type systemConfig struct {
 
 
 
-type Event_log struct {	
+type Event_log struct {
 	Type string `json:"type"`
 	Time string `json:"time"`
 	Event_body string `json:"event"`
 }
 
-type emialGroup struct {	
+type emialGroup struct {
 	INDEX string `json:"index"`
 	NAME string `json:"name"`
 	EMAIL string `json:"email"`
 }
 
-type emialList struct {	
+type emialList struct {
 	Mail []emialGroup `json:"mail"`
 }
 
-type event_node struct {	
+type event_node struct {
 	EMAIL string `json:"email_index"`
 	MAC string  `json:"mac"`
 	TYPE string  `json:"type"`
@@ -199,13 +199,13 @@ type videowall_pair struct {
 	HE_SHIFT string `json:"he_shift"`
 }
 
-type videowall_preset struct {	
+type videowall_preset struct {
 	NAME string `json:"name"`
 	INDEX string `json:"index"`
 	TX string `json:"tx_mac"`
 	ROW string `json:"row"`
 	COL string `json:"col"`
-	
+
 
 	RX []videowall_pair `json:"rx_list"`
 }
@@ -233,12 +233,12 @@ func encodeRFC2047(String string) string{
 
 
 func api_modify_vw_Preset(w http.ResponseWriter, r *http.Request) {
-	
-	var p videowall_preset 
-	
+
+	var p videowall_preset
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
 	w.WriteHeader(http.StatusOK)
-	
+
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err!=nil{
 		fmt.Println("error")
@@ -257,8 +257,8 @@ func sys_save_vw_Preset(index string,p videowall_preset){
 
 k, _ := strconv.Atoi(index)
 if k>8{
-	return 
-}	
+	return
+}
 path := "./preset/vw_preset"+ index + "_info.json"
 vw_preset[k-1] = p
 json_preset ,_:= json.Marshal(vw_preset[k-1])
@@ -270,13 +270,13 @@ func sys_load_vw_Preset(){
 
 var path string
 	for i := 0; i < 8; i++ {
-		index := strconv.Itoa(i+1) 
+		index := strconv.Itoa(i+1)
 		path = "./preset/vw_preset"+ index + "_info.json"
 		file, err := ioutil.ReadFile(path)
 		if err == nil {
 			//var vw_slice videowall_preset
-			_ = json.Unmarshal([]byte(file), &vw_preset[i])				
-			//fmt.Println(vw_preset[i].NAME)			
+			_ = json.Unmarshal([]byte(file), &vw_preset[i])
+			//fmt.Println(vw_preset[i].NAME)
 		}else{
 		vw_preset[i].NAME = "preset"+index
 		fmt.Println(err)
@@ -287,7 +287,7 @@ var path string
 
 func api_list_vw_Preset(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
-	
+
 	node_slice := make([]videowall_preset, 0, 8)
 	for i := 0; i < 8; i++ {
 	 node_slice = append(node_slice, vw_preset[i])
@@ -295,7 +295,7 @@ func api_list_vw_Preset(w http.ResponseWriter, r *http.Request) {
 	json_node_list ,_:= json.Marshal(node_slice)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(json_node_list) 
+	w.Write(json_node_list)
 	w.(http.Flusher).Flush()
 }
 
@@ -305,7 +305,7 @@ func api_list_vw_Preset(w http.ResponseWriter, r *http.Request) {
 func get_pi4_ipconfig(){
 
 
-	
+
 	ipCnt := 0
 	/*mgmtInterface, err := net.InterfaceByName("eth0")
     if err != nil {
@@ -318,11 +318,11 @@ func get_pi4_ipconfig(){
 			fmt.Println(err)
 			os.Exit(1)
 		}
-	
+
 	var tmp_ip,tmp_mask string
-		
+
 	for _, addr := range addrs {
-	
+
 		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
         var ip net.IP
         var mask net.IPMask
@@ -340,24 +340,24 @@ func get_pi4_ipconfig(){
         ip = ip.To4()
         if ip == nil {
             continue
-        }	
+        }
 		cleanMask := fmt.Sprintf("%d.%d.%d.%d", mask[0], mask[1], mask[2], mask[3])
         //fmt.Println(ip, cleanMask,ipCnt)
 		ipCnt = ipCnt+1
-		
+
 		if ipCnt>2 {
 		continue
 		}
 		tmp_ip = ip.String()
 		tmp_mask = cleanMask
-		
+
 		}
     }
 
 	if sys_config.IP_mode == "STATIC"{
-	
+
 		 if tmp_ip!=sys_config.IP{
-		 
+
 		 fmt.Println("static IP not found",tmp_ip,sys_config.IP)
 		 cmd := exec.Command("sudo","ip","adderss","add",sys_config.IP+"/24","dev eth0:0")
 		 out,err := cmd.Output()
@@ -366,13 +366,13 @@ func get_pi4_ipconfig(){
 		 }
 		 fmt.Println(string(out))
 		 }
-	
-	
+
+
 	}else{
-	
+
 		sys_config.IP = tmp_ip
 		sys_config.MASK = tmp_mask
-	
+
 	}
 
 
@@ -421,7 +421,7 @@ func get_pi4_ipconfig(){
 
         break
     }
-	
+
 
 
 }
@@ -450,107 +450,109 @@ func (a *LoginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 
 
 
-func SendGMail(Msg []byte,index string){ 
-
+func SendGMail(Msg []byte,index string){
+    fmt.Println("SendGMail~~~~~~~~~~~")
 
 	k, _ := strconv.Atoi(index)
 	if k>8{
-	return 
-	}	
-	
+	return
+	}
+
 	var mailTo []string
-	mailTo = strings.Split(eventEmail_map[k-1].EMAIL, ";") 
+	mailTo = strings.Split(eventEmail_map[k-1].EMAIL, ";")
 	mailTo = mailTo[:len(mailTo)-1]
 	fmt.Println(mailTo,len(mailTo))
-	
+
 	if len(mailTo)==0{
 		return
 	}
-	
+
     //addr := "mse.gomax-electronics.com.tw:25"
 	c, err := smtp.Dial("mse.gomax-electronics.com.tw:25")
     host, _, _ := net.SplitHostPort("mse.gomax-electronics.com.tw:25")
 	if err != nil {
         fmt.Println("call dial")
-        return 
+        return
     }
     defer c.Close()
 	if ok, _ := c.Extension("STARTTLS"); ok {
         config := &tls.Config{ServerName: host, InsecureSkipVerify: true}
         if err = c.StartTLS(config); err != nil {
             fmt.Println("call start tls")
-            return 
+            return
         }
     }
-	
+
 	auth := NewLoginAuth("pi4control@gomax-electronics.com.tw","Iym#g052")
-	
+
 	if ok, _ := c.Extension("AUTH"); ok {
             if err = c.Auth(auth); err != nil {
                 fmt.Println("check auth with err:", err)
-                return 
+                return
             }
     }
-	
+
 	from := "pi4control@gomax-electronics.com.tw"
-	
+
 	if err = c.Mail(from); err != nil {
 	    fmt.Println("mail err:", err)
-        return 
+        return
     }
-	
+
 	//to := []string{"pokemongoplayer20160817@gmail.com","kdjljfsjf@gmail.com"}
 	//fmt.Println(to)
 	//mailTo
     for _, addr := range mailTo {
         if err = c.Rcpt(addr); err != nil {
 			 fmt.Println("range err:", err)
-            return 
+            return
         }
     }
     w, err := c.Data()
     if err != nil {
 		fmt.Println("Data err:", err)
-        return 
-    }	
-	
+        return
+    }
+
 
 	//msg := []byte("astpi4 test")
-	
+
 	header := make(map[string]string)
     header["Subject"] = "Aspeed System notification"
     header["MIME-Version"] = "1.0"
     header["Content-Type"] = "text/plain; charset=\"utf-8\""
     header["Content-Transfer-Encoding"] = "base64"
     message := ""
+    fmt.Println("before Enter header while k = " , k )
     for k, v := range header {
+        fmt.Println("log = %s: %s\r\n", k, v)
         message += fmt.Sprintf("%s: %s\r\n", k, v)
     }
     message += "\r\n" + base64.StdEncoding.EncodeToString(Msg)
-	
-	
+
+
     _, err = w.Write([]byte(message))
-	
+
 	if err != nil {
 		fmt.Println("write err:", err)
-        return 
+        return
     }
     err = w.Close()
     if err != nil {
-        return 
+        return
     }
     c.Quit()
-		
-		
+
+
 }
 
-func SendMail(Msg,index string){ 
-	
+func SendMail(Msg,index string){
 
+    fmt.Println("SendMail~~~~~~~~~~~")
 	k, _ := strconv.Atoi(index)
 	if k>8{
-	return 
-	}	
+	return
+	}
 
 	mailServer := "pi4control@gomax-electronics.com.tw"
 	smtpServer := "mse.gomax-electronics.com.tw"//"smtp.gmail.com"
@@ -558,11 +560,11 @@ func SendMail(Msg,index string){
 	auth := smtp.PlainAuth(
 		"",
 		mailServer,//"XXX@gmail.com",//account
-		"Iym#g052",                    //password 
+		"Iym#g052",                    //password
 		smtpServer,
 	)
 	from := mail.Address{"ststem", mailServer}
-	mailTo := strings.Split(eventEmail_map[k-1].EMAIL, ";") 
+	mailTo := strings.Split(eventEmail_map[k-1].EMAIL, ";")
 	/*to := []string {
 		"pokemongoplayer20160817@gmail.com",
 		"pokemongoplayer20160822@gmail.com",
@@ -577,7 +579,7 @@ func SendMail(Msg,index string){
 	header["MIME-Version"] = "1.0"
 	header["Content-Type"] = "text/plain; charset=\"utf-8\""
 	header["Content-Transfer-Encoding"] = "base64"
-	
+
 	message := ""
 	for k, v := range header {
 		message += fmt.Sprintf("%s: %s\r\n", k, v)
@@ -594,7 +596,7 @@ func SendMail(Msg,index string){
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 }
 
 func chmodApp(){
@@ -607,7 +609,7 @@ func chmodApp(){
 }
 
 func runShell(){
-    
+
 	command := `sh update.sh`
     //cmd := exec.Command("/bin/sh", "-c", command)
     cmd := exec.Command("sh", "update.sh")
@@ -617,7 +619,7 @@ func runShell(){
         return
     }
     fmt.Println("Execute Shell:%s finished with output:\n%s", command, string(output))
-	
+
 	/*
 	cmd := exec.Command("unzip","-o","/home/pi/golang/controller/tmp/fw.zip","-d","/home/pi/app/","&")
 	out,err := cmd.Output()
@@ -641,24 +643,24 @@ func sync(){
 func fw_update(total,index, md5Data , data64 string)(string){
 
 	b64_ := strings.Replace(data64, " ", "+",-1)
-	
+
 	if index=="1"{//clear
-	fw_file ="";	
+	fw_file ="";
 	}
 	fw_file = fw_file + b64_
-	
+
 	m_data := []byte(b64_)
 	md5_Data := md5.Sum(m_data)
-	
-	md5str1 := fmt.Sprintf("%X", md5_Data) //byte to hex	
+
+	md5str1 := fmt.Sprintf("%X", md5_Data) //byte to hex
 	fmt.Println("Ori:"+md5Data)
 	fmt.Println("data:"+md5str1)
 	if md5Data!=md5str1{
 	return "DAIL_ERR"
 	}
-	
+
 	if total == index{
-	
+
 	unbased, err := base64.StdEncoding.DecodeString(fw_file)
 	if err != nil {
     	panic("Cannot decode b64")
@@ -683,7 +685,7 @@ func api_fw_update(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
 	w.WriteHeader(http.StatusOK)
-	
+
 	fmt.Fprintf(w,"{\"result\":\"%v\"}", fw_update(r.FormValue("total"),r.FormValue("index"),r.FormValue("md5"),r.FormValue("base64")))
 	w.(http.Flusher).Flush()
 
@@ -692,7 +694,7 @@ func api_fw_update(w http.ResponseWriter, r *http.Request) {
 func event_device_del(mac string){
 
 	delete(event_connect_map,mac)
-	delete(event_videolost_map,mac)	
+	delete(event_videolost_map,mac)
 	saveEvent("connection")
 	saveEvent("videolost")
 }
@@ -702,7 +704,7 @@ func check_connection_lost(mac string){
 
 	if event_connect_map[mac]!=nil{
 	Msg :=  ast_info_map[mac].Host_name + " connection loss"
-	var Array_Msg[]byte = []byte(Msg) 
+	var Array_Msg[]byte = []byte(Msg)
 	SendGMail(Array_Msg,event_connect_map[mac].EMAIL)
 	fmt.Println(mac+" connection lost")
 	}
@@ -712,9 +714,9 @@ func check_connection_lost(mac string){
 func check_video_lost(mac string){
 
 	if event_videolost_map[mac]!=nil{
-	
+
 	Msg :=  ast_info_map[mac].Host_name + " video loss"
-	var Array_Msg[]byte = []byte(Msg) 
+	var Array_Msg[]byte = []byte(Msg)
 	SendGMail(Array_Msg,event_videolost_map[mac].EMAIL)
 	fmt.Println(mac+" video lost")
 	}
@@ -722,7 +724,7 @@ func check_video_lost(mac string){
 }
 
 func api_del_connection_lost(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r) 
+	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w,"{\"result\":\"%v\"}",del_connection_lost("connection",vars["mac"]))
@@ -730,15 +732,15 @@ func api_del_connection_lost(w http.ResponseWriter, r *http.Request) {
 }
 
 func api_del_video_lost(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r) 
+	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w,"{\"result\":\"%v\"}",del_connection_lost("videolost",vars["mac"]))
 	w.(http.Flusher).Flush()
 }
 
-func del_connection_lost(eventType,mac string) (string) {	
-	
+func del_connection_lost(eventType,mac string) (string) {
+
 	if eventType=="connection"{
 	fmt.Println("delete connection lost event "+mac)
 	delete(event_connect_map,mac)
@@ -749,7 +751,7 @@ func del_connection_lost(eventType,mac string) (string) {
 	saveEvent("videolost")
 	}
 
-	
+
 	return "OK"
 }
 
@@ -758,11 +760,11 @@ func api_get_connection_lost(w http.ResponseWriter, r *http.Request) {
 	node_slice := make([]event_node, 0, len(event_connect_map))
   for _, tx := range event_connect_map {
       node_slice = append(node_slice, *tx)
-  } 
+  }
 	json_node_list ,_:= json.Marshal(node_slice)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(json_node_list) 
+	w.Write(json_node_list)
 	w.(http.Flusher).Flush()
 }
 
@@ -771,19 +773,19 @@ func api_get_video_lost(w http.ResponseWriter, r *http.Request) {
 	node_slice := make([]event_node, 0, len(event_videolost_map))
   for _, tx := range event_videolost_map {
       node_slice = append(node_slice, *tx)
-  } 
+  }
 	json_node_list ,_:= json.Marshal(node_slice)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(json_node_list) 
+	w.Write(json_node_list)
 	w.(http.Flusher).Flush()
 }
 
 func api_update_connection_lost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
 	w.WriteHeader(http.StatusOK)
-	
-	var p event_node 
+
+	var p event_node
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err!=nil{
 		fmt.Println("error")
@@ -797,8 +799,8 @@ func api_update_connection_lost(w http.ResponseWriter, r *http.Request) {
 func api_update_video_lost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
 	w.WriteHeader(http.StatusOK)
-	
-	var p event_node 
+
+	var p event_node
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err!=nil{
 		fmt.Println("error")
@@ -817,7 +819,7 @@ func loadEvent(){
 		var node_slice []event_node
 		_ = json.Unmarshal([]byte(file), &node_slice)
 		for i := 0; i < len(node_slice); i++ {
-		event_connect_map[node_slice[i].MAC] = &node_slice[i]				
+		event_connect_map[node_slice[i].MAC] = &node_slice[i]
 		}
 	}
 	file, err = ioutil.ReadFile("./event/videolostEvent.json")
@@ -826,28 +828,28 @@ func loadEvent(){
 		var video_slice []event_node
 		_ = json.Unmarshal([]byte(file), &video_slice)
 		for i := 0; i < len(video_slice); i++ {
-		event_videolost_map[video_slice[i].MAC] = &video_slice[i]				
+		event_videolost_map[video_slice[i].MAC] = &video_slice[i]
 		}
-	}		
+	}
 }
 
-func saveEvent(event string){  
+func saveEvent(event string){
 
-  if(event=="connection"){	
+  if(event=="connection"){
 	  node_slice := make([]event_node, 0, len(event_connect_map))
 	  for _, tx := range event_connect_map {
 		  node_slice = append(node_slice, *tx)
-	  } 
+	  }
 		event_list ,_:= json.Marshal(node_slice)
 		_ = ioutil.WriteFile("./event/connectionEvent.json",event_list, 0644)
 		}else{
 	  node_slice := make([]event_node, 0, len(event_videolost_map))
 	  for _, tx := range event_videolost_map {
 		  node_slice = append(node_slice, *tx)
-	  } 
+	  }
 		event_list ,_:= json.Marshal(node_slice)
 		_ = ioutil.WriteFile("./event/videolostEvent.json",event_list, 0644)
-		
+
 	}
 }
 
@@ -857,11 +859,11 @@ func updateEvent (event string, m_list event_node)(string){
 	tmp.EMAIL = m_list.EMAIL
 	tmp.MAC = m_list.MAC
 	tmp.TYPE = m_list.TYPE
-	
+
 	fmt.Println("mail:"+tmp.EMAIL)
 	fmt.Println("mac:"+tmp.MAC)
 	fmt.Println("type:"+tmp.TYPE)
-	
+
 	if(event=="connection"){
 		if map_tmp, ok := event_connect_map[tmp.MAC]; ok {
 		fmt.Println("modify")
@@ -870,14 +872,14 @@ func updateEvent (event string, m_list event_node)(string){
 		map_tmp.TYPE = m_list.TYPE
 		}else{
 		fmt.Println("new")
-		event_connect_map[tmp.MAC] = &tmp	
+		event_connect_map[tmp.MAC] = &tmp
 		}
 		saveEvent("connection")
 		/*
 		event_slice := make([]event_node, 0, len(event_connect_map))
 		for _, tx := range event_connect_map {
 		event_slice = append(event_slice, *tx)
-		}	 
+		}
 		event_list ,_:= json.Marshal(event_slice)
 		_ = ioutil.WriteFile("./event/connectionEvent.json",event_list, 0644)*/
 	}else{
@@ -888,11 +890,11 @@ func updateEvent (event string, m_list event_node)(string){
 		map_tmp.TYPE = m_list.TYPE
 		}else{
 		fmt.Println("new event")
-		event_videolost_map[tmp.MAC] = &tmp	
+		event_videolost_map[tmp.MAC] = &tmp
 		}
 		saveEvent("videolost")
 	}
-	
+
 	return "OK"
 
 }
@@ -900,34 +902,34 @@ func updateEvent (event string, m_list event_node)(string){
 func loadEmail(){
 
  for i := 0; i < 8; i++ {
-	index := strconv.Itoa(i+1) 
+	index := strconv.Itoa(i+1)
 	path := "./email/group"+index+".dat"
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
       eventEmail_map[i].INDEX = index
 	  eventEmail_map[i].NAME = "group"+index
-		
+
 	  json_email ,_:= json.Marshal(eventEmail_map[i])
 	  _ = ioutil.WriteFile(path,json_email, 0644)
       fmt.Println("create new email group"+index)
 	  continue
     }
-    _ = json.Unmarshal([]byte(content), &eventEmail_map[i])	
-	}		
+    _ = json.Unmarshal([]byte(content), &eventEmail_map[i])
+	}
 }
 
 
 func api_modifyEmail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
 	w.WriteHeader(http.StatusOK)
-	
-	var p emialGroup 
+
+	var p emialGroup
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err!=nil{
 		fmt.Println("error")
 		fmt.Fprintf(w,"{\"result\":\"%v\"}", "DAIL_ERR")
 	}else{
-	
+
 	k, _ := strconv.Atoi(p.INDEX)
 	if k>8{
 	fmt.Fprintf(w,"{\"result\":\"DAIL_ERR\"}")
@@ -941,7 +943,7 @@ func api_modifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	}
 	w.(http.Flusher).Flush()
-	
+
 
 }
 
@@ -952,12 +954,12 @@ func api_listEmail(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < 8; i++ {
 	email_array.Mail = append(email_array.Mail,eventEmail_map[i])
 	}
-	//email_slice := make([]Ast_preset_array, 0, 1)	
+	//email_slice := make([]Ast_preset_array, 0, 1)
 	//preset_slice = append(preset_slice, preset_array)
 	json_node_list ,_:= json.Marshal(email_array)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(json_node_list) 
+	w.Write(json_node_list)
 	w.(http.Flusher).Flush()
 }
 
@@ -967,7 +969,7 @@ func add_event(event_type, event_body string) {
 	if event_num == 500 && event_index ==500{
 	event_index = 0
 	//event_num--
-	} 
+	}
 
 
 	event_array[event_index] = Event_log{event_type,time.Now().Format("200601021504"),event_body}
@@ -1033,7 +1035,7 @@ func api_pi4_set_dhcp(w http.ResponseWriter, r *http.Request) {
 }
 
 func pi4_set_dhcp() (string) {
-		
+
 	cmd := exec.Command("sudo","sed","-i","10c iface eth0 inet manual","/etc/network/interfaces")
 	_,_ = cmd.Output()
 	cmd  = exec.Command("sudo","sed","-i","11c up dhclient -nw eth0","/etc/network/interfaces")
@@ -1055,7 +1057,7 @@ func pi4_set_dhcp() (string) {
     _,err3 := cmd3.Output()
     if err3 != nil {
         fmt.Println(err3)
-    } 
+    }
     //enable dhcp
     _ = exec.Command("sudo","dhclient","-nw","eth0")
     _,err4 := cmd3.Output()
@@ -1066,7 +1068,7 @@ func pi4_set_dhcp() (string) {
 }
 
 func pi4_set_ip(ip,mask,gw string) (string) {
-		
+
     cmd := exec.Command("sudo","sed","-i","10c iface eth0 inet static","/etc/network/interfaces")
 	_,_ = cmd.Output()
     cmd  = exec.Command("sudo","sed","-i","11c #dhcp","/etc/network/interfaces")
@@ -1091,7 +1093,7 @@ func pi4_set_ip(ip,mask,gw string) (string) {
     //if err3 != nil {
     //    fmt.Println(err3)
     //}
-    
+
 
     return "OK"
 }
@@ -1101,7 +1103,7 @@ func pi4_set_ip(ip,mask,gw string) (string) {
 
 func api_get_mac(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
-	
+
 
 	j_mac := map[string]interface{}{
               "mac": pi4_mac,
@@ -1128,7 +1130,7 @@ func getMacAddrs() (macAddrs string) {
 
         macAddrs = macAddr
 		macAddrs = strings.Replace(string(macAddrs[:]), ":", "",-1)
-		macAddrs = strings.ToUpper(macAddrs) 
+		macAddrs = strings.ToUpper(macAddrs)
 		return macAddrs
 
     }
@@ -1159,9 +1161,9 @@ func system_changePassword(w http.ResponseWriter, r *http.Request) {
 
 func api_login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
-    w.WriteHeader(http.StatusOK)	
+    w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w,"{\"result\":\"%v\"}", system_check_login(r.FormValue("password")))
-	
+
 	w.(http.Flusher).Flush()
 }
 
@@ -1170,26 +1172,26 @@ func LoadPassword(){
  content, err := ioutil.ReadFile("./tmp/account.dat")
  if err != nil {
       pi4_password = "admin"
-	  SavePassword()   
+	  SavePassword()
       fmt.Println("password file not exist create new one")
 	  return
     }
   pi4_password = string(content)
   Strkey := pi4_mac+"1234"
-  Dencrypted , _:= hex.DecodeString(pi4_password ) 
-  var key[]byte = []byte(Strkey) 
+  Dencrypted , _:= hex.DecodeString(pi4_password )
+  var key[]byte = []byte(Strkey)
   decrypted := AesDecryptCBC(Dencrypted, key)
-  pi4_password = string(decrypted) 
+  pi4_password = string(decrypted)
   log.Println("password:", string(pi4_password))
-  
+
 }
 
 func SavePassword()(string){
 
-	
+
 	aesKey := pi4_mac+"1234"
-	var passwordByte []byte = []byte(pi4_password) 
-	var key[]byte = []byte(aesKey) 
+	var passwordByte []byte = []byte(pi4_password)
+	var key[]byte = []byte(aesKey)
 	encrypted := AesEncryptCBC(passwordByte, key)
 	strEncrypted := hex.EncodeToString(encrypted)
 
@@ -1214,11 +1216,11 @@ func sys_get_config(w http.ResponseWriter, r *http.Request) {
 	get_pi4_ipconfig()
 
   	_json := map[string]interface{}{
-		
-	
-	//i_timezone, _ := strconv.Atoi(sys_config.Timezone)	
-	//s_timezone := strconv.Itoa(i_timezone+1)	
-		
+
+
+	//i_timezone, _ := strconv.Atoi(sys_config.Timezone)
+	//s_timezone := strconv.Itoa(i_timezone+1)
+
               "type": sys_config.UI,
 			  "timezone": sys_config.Timezone,
 			  "ip_mode": sys_config.IP_mode,
@@ -1226,8 +1228,8 @@ func sys_get_config(w http.ResponseWriter, r *http.Request) {
 			  "ip":sys_config.IP,
 			  "mask":sys_config.MASK,
 			  "gateway":sys_config.GATEWAY,
-			  
-			  
+
+
               }
 	jsonString ,_:= json.Marshal(_json)
 	w.Header().Set("Content-Type", "application/json")
@@ -1254,16 +1256,16 @@ func SetTimezone(zone string){
 
 func GetCurrentTime()(string){
 
-	cmd := exec.Command("date","+%s")  
+	cmd := exec.Command("date","+%s")
 	out,err := cmd.Output()
     if err != nil {
         fmt.Println(err)
 		return "error"
     }else{
-	
+
 	return string(out)
 	}
-	
+
 }
 
 func sys_config_ctrl(mappingMode, timezone, ip_mode, ip, mask, gw string)(string){
@@ -1273,44 +1275,44 @@ func sys_config_ctrl(mappingMode, timezone, ip_mode, ip, mask, gw string)(string
 	sys_config.UI = mappingMode
 	dataChanged = true;
 	}
-	
+
 	if k, err := strconv.Atoi(timezone); err == nil {
 		if sys_config.Timezone!= timezone{
 		sys_config.Timezone = timezone
 		SetTimezone(TimezoneList[k-1])
-			
-		dataChanged = true;	
+
+		dataChanged = true;
 	}
 	}else{
 	fmt.Println("error timezone index")
 	return "DAIL_ERR"
 	}
 
-	
+
 
 	if sys_config.IP_mode != ip_mode{
 	   sys_config.IP_mode = ip_mode
-	   dataChanged = true;	
+	   dataChanged = true;
 	   if sys_config.IP_mode == "DHCP"{
-	   pi4_set_dhcp()	  
+	   pi4_set_dhcp()
 	   fmt.Println("DHCP ON")
 	   }else{
 	   pi4_set_ip(ip,mask,gw)
-	     fmt.Println("static ON")	   
+	     fmt.Println("static ON")
 	   }
 	   fmt.Println("ip mode: ",ip_mode)
 	}else{
-	
+
 	//ethernet settings
-	if sys_config.IP_mode == "STATIC"{	
+	if sys_config.IP_mode == "STATIC"{
 		if sys_config.IP != ip || sys_config.MASK != mask || sys_config.GATEWAY != gw{
 	     pi4_set_ip(ip,mask,gw)
-	     fmt.Println("static changed")	 
-		}	
+	     fmt.Println("static changed")
+		}
 	}
-	
+
 	}
-	if dataChanged==true {	
+	if dataChanged==true {
 	SaveSystemConfig()
 	}
 	return "OK"
@@ -1328,12 +1330,12 @@ func LoadSystemConfig(){
 		 sys_config.IP = ""
 		 sys_config.MASK = ""
 		 sys_config.GATEWAY = ""
-		 
+
 		 SaveSystemConfig()
-		 fmt.Println("create new system config")		 
+		 fmt.Println("create new system config")
 		}else{
 		_ = json.Unmarshal([]byte(content), &sys_config)
-		fmt.Println(sys_config.UI,sys_config.Timezone,sys_config.IP_mode)						
+		fmt.Println(sys_config.UI,sys_config.Timezone,sys_config.IP_mode)
 		}
 }
 
@@ -1349,12 +1351,12 @@ func ChangePassword(old, new string)(string){
 	data := []byte(str)
 	md5Data := md5.Sum(data)
 	md5str1 := fmt.Sprintf("%X", md5Data) //byte to hex
-	fmt.Println(md5str1)	
+	fmt.Println(md5str1)
 	if md5str1 != old {
 	return "DAIL_ERR"
 	}
 	fmt.Println("old password verify OK")
-	pi4_password = new	
+	pi4_password = new
 	result := SavePassword()
 	return result
 }
@@ -1364,20 +1366,20 @@ func ChangePassword(old, new string)(string){
 func AesEncryptCBC(origData []byte, key []byte) (encrypted []byte) {
 	//
 	block, _ := aes.NewCipher(key)
-	blockSize := block.BlockSize()                              // 
-	origData = pkcs5Padding(origData, blockSize)                // 
-	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize]) // 
-	encrypted = make([]byte, len(origData))                     // 
-	blockMode.CryptBlocks(encrypted, origData)                  // 
+	blockSize := block.BlockSize()                              //
+	origData = pkcs5Padding(origData, blockSize)                //
+	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize]) //
+	encrypted = make([]byte, len(origData))                     //
+	blockMode.CryptBlocks(encrypted, origData)                  //
 	return encrypted
 }
 func AesDecryptCBC(encrypted []byte, key []byte) (decrypted []byte) {
-	block, _ := aes.NewCipher(key)                              // 
-	blockSize := block.BlockSize()                              // 
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize]) // 
-	decrypted = make([]byte, len(encrypted))                    // 
-	blockMode.CryptBlocks(decrypted, encrypted)                 // 
-	decrypted = pkcs5UnPadding(decrypted)                       // 
+	block, _ := aes.NewCipher(key)                              //
+	blockSize := block.BlockSize()                              //
+	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize]) //
+	decrypted = make([]byte, len(encrypted))                    //
+	blockMode.CryptBlocks(decrypted, encrypted)                 //
+	decrypted = pkcs5UnPadding(decrypted)                       //
 	return decrypted
 }
 func pkcs5Padding(ciphertext []byte, blockSize int) []byte {
