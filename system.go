@@ -1392,3 +1392,11 @@ func pkcs5UnPadding(origData []byte) []byte {
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
 }
+
+func GetSystemConfig() systemConfig{
+     return sys_config
+}
+
+func GetSystemFWVersion() string{
+     return "FW 1.1"
+}
