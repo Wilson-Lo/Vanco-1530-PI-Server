@@ -41,7 +41,7 @@ func EncryptionData(bodyData string) string{
 /**
 *  Get sign value
 */
-func GetSign(data Command) string{
+func GetSign(data CommandObject) string{
      var allData = "body="+data.Body+"&etag="+data.Etag+"&extra="+data.Extra+"&method="+data.Method+"&time="+data.Time+"&to="+data.To
      return ToMD5(allData)
 }
