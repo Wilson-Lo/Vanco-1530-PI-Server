@@ -6,8 +6,8 @@ import (
     "github.com/gorilla/websocket"
     "encoding/json"
     "fmt"
-   // "strings"
-   //  b64 "encoding/base64"
+    "strings"
+     b64 "encoding/base64"
 )
 
 const (
@@ -43,7 +43,7 @@ func initWebSocket(){
        ch := make(chan bool)
        go SendPingPong(ws, ch)
 
-       var cmd Command
+       var cmd CommandObject
 
    	   for{
            _, msg, err2 := ws.ReadMessage()
@@ -59,34 +59,50 @@ func initWebSocket(){
 
            switch cmd.Method {
 
-               case "get_info"://get device info
-                    /*    var bodyData = strings.ReplaceAll(cmd.Body, SaltFirst, "")
+               case  "switch_channel"://switch channel
+                       var bodyData = strings.ReplaceAll(cmd.Body, SaltFirst, "")
                         bodyData = strings.ReplaceAll(bodyData, SaltAfter, "")
                         byteData, err := b64.StdEncoding.DecodeString(bodyData)
                         if(err != nil){
-                          cmd.Etag = cmd.Etag
-                          cmd.Method = "cmd"
-                          cmd.Body = EncryptionData("{ \"result\": \"failed\"}")
-                          cmd.Sign = GetSign(cmd)
-                          SendBackToHttps(ws, cmd)
-                          return
-                        } */
+                            cmd.Method = "cmd"
+                            cmd.Body = EncryptionData("{ \"result\": \"failed\"}")
+                            cmd.Sign = GetSign(cmd)
+                            SendBackToHttps(ws, cmd)
+                            return
+                        }
+                        var switchChannelObject SwitchChannelObject
+                        if err := json.Unmarshal([]byte(byteData), &switchChannelObject); err != nil {
+                           log.Println(err)
+                        }
+                        log.Println("ip = ", switchChannelObject.IP, " Channel = ", switchChannelObject.Channel, " type = ", switchChannelObject.Type)
+                        var feedback = astswitch(switchChannelObject.IP ,switchChannelObject.Channel ,switchChannelObject.Type)
+                        log.Println("switch feedback = ", feedback)
+                        if(strings.Contains(feedback, "OK")){
+                           cmd.Method = "cmd"
+                           cmd.Body = EncryptionData("{ \"result\": \"ok\"}")
+                           cmd.Sign = GetSign(cmd)
+                           SendBackToHttps(ws, cmd)
+                        }else{
+                           cmd.Method = "cmd"
+                           cmd.Body = EncryptionData("{ \"result\": \"failed\", \"message\": \"Switch channel failed !\"}")
+                           cmd.Sign = GetSign(cmd)
+                           SendBackToHttps(ws, cmd)
+                        }
+                        break
 
-                     //   json.Unmarshal(byteData, &cmd)
-
+               case "get_info"://get control box info
                         var systemConfig = GetSystemConfig()
-                        log.Println("receive cmd.Etag = " , cmd.Etag)
-                       // cmd.Etag = cmd.Etag
                         cmd.Method = "cmd"
                         cmd.Body = EncryptionData("{ \"result\": \"ok\", \"fw\": \"" + GetSystemFWVersion() + "\",  \"ip\": \"" + systemConfig.IP + "\", \"mask\": \"" + systemConfig.MASK + "\", \"gateway\": \"" + systemConfig.GATEWAY + "\"}")
                         cmd.Sign = GetSign(cmd)
                         SendBackToHttps(ws, cmd)
                         break
 
-               //get device list
-               case "node_list":
-                        var data =  ws_node_list()
-               		    _ = ws.WriteMessage(websocket.TextMessage, []byte("{\"body\":" + data + "}"))
+               case "node_list": //get device list
+               		    cmd.Method = "cmd"
+                        cmd.Body = EncryptionData("{ \"result\": \"ok\", \"device_list\":" + ws_node_list() + "}")
+                        cmd.Sign = GetSign(cmd)
+                        SendBackToHttps(ws, cmd)
                         break
 
                case  "pong":
@@ -102,7 +118,7 @@ func initWebSocket(){
    	}
 }
 
-func SendBackToHttps(conn *websocket.Conn, cmd Command){
+func SendBackToHttps(conn *websocket.Conn, cmd CommandObject){
      reqBodyBytes := new(bytes.Buffer)
      json.NewEncoder(reqBodyBytes).Encode(cmd)
      _ = conn.WriteMessage(websocket.TextMessage, []byte(reqBodyBytes.Bytes()))
