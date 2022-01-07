@@ -6,8 +6,8 @@ import (
     "github.com/gorilla/websocket"
     "encoding/json"
     "fmt"
-    "strings"
-     b64 "encoding/base64"
+   // "strings"
+   //  b64 "encoding/base64"
 )
 
 const (
@@ -60,7 +60,7 @@ func initWebSocket(){
            switch cmd.Method {
 
                case "get_info"://get device info
-                        var bodyData = strings.ReplaceAll(cmd.Body, SaltFirst, "")
+                    /*    var bodyData = strings.ReplaceAll(cmd.Body, SaltFirst, "")
                         bodyData = strings.ReplaceAll(bodyData, SaltAfter, "")
                         byteData, err := b64.StdEncoding.DecodeString(bodyData)
                         if(err != nil){
@@ -70,13 +70,13 @@ func initWebSocket(){
                           cmd.Sign = GetSign(cmd)
                           SendBackToHttps(ws, cmd)
                           return
-                        }
+                        } */
 
-                        json.Unmarshal(byteData, &cmd)
+                     //   json.Unmarshal(byteData, &cmd)
 
                         var systemConfig = GetSystemConfig()
-
-                        cmd.Etag = cmd.Etag
+                        log.Println("receive cmd.Etag = " , cmd.Etag)
+                       // cmd.Etag = cmd.Etag
                         cmd.Method = "cmd"
                         cmd.Body = EncryptionData("{ \"result\": \"ok\", \"fw\": \"" + GetSystemFWVersion() + "\",  \"ip\": \"" + systemConfig.IP + "\", \"mask\": \"" + systemConfig.MASK + "\", \"gateway\": \"" + systemConfig.GATEWAY + "\"}")
                         cmd.Sign = GetSign(cmd)
